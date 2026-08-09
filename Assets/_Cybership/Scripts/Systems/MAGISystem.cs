@@ -8,6 +8,7 @@
 //                       2 = aligned (YES), 3 = dissent (NO)
 // ============================================================
 
+using TMPro;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -20,8 +21,8 @@ public class MAGISystem : UdonSharpBehaviour
     public ParticleSystem[] coreParticles;
 
     [Header("Decision Display")]
-    public TextMesh decisionText;
-    public TextMesh voteStatusText;
+    public TextMeshPro decisionText;
+    public TextMeshPro voteStatusText;
     public AudioSource magiVoice;
     public AudioClip deliberationSound;
     public AudioClip consensusSound;
@@ -228,16 +229,6 @@ public class MAGISystem : UdonSharpBehaviour
                 }
             }
         }
-
-        if (voteStatusText != null)
-        {
-            int decided = 0;
-            foreach (int v in _coreVotes)
-            {
-                if (v != 0) decided++;
-            }
-            voteStatusText.text = "MAGI: " + decided + "/3 ALIGNED";
-        }
     }
 
     public void ResetCores()
@@ -262,9 +253,6 @@ public class MAGISystem : UdonSharpBehaviour
                     p.Stop();
             }
         }
-
-        if (voteStatusText != null)
-            voteStatusText.text = "MAGI: STANDBY";
     }
 
     // ============================================================
@@ -272,8 +260,6 @@ public class MAGISystem : UdonSharpBehaviour
     // ============================================================
     private void BroadcastToAll(string message)
     {
-        if (decisionText != null)
-            decisionText.text = message;
     }
 
     // ============================================================

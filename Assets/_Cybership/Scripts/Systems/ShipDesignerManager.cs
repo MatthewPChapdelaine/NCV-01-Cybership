@@ -23,6 +23,7 @@
 // client-authoritative, like the rank/XP system).
 // ============================================================
 
+using TMPro;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -53,8 +54,8 @@ public class ShipDesignerManager : UdonSharpBehaviour
 
     [Header("Console")]
     public GameObject designerUI;
-    public TextMesh statusText;
-    public TextMesh gridText;
+    public TextMeshPro statusText;
+    public TextMeshPro gridText;
 
     [Header("Interaction")]
     public float rayRange = 30f;
@@ -137,9 +138,8 @@ public class ShipDesignerManager : UdonSharpBehaviour
         RefreshStatus();
     }
 
-    // Plain public method (not an override) - PlayerData is only safe
-    // to read after the local player's data has been restored.
-    public void OnPlayerRestored(VRCPlayerApi player)
+    // PlayerData is only safe to read after the local player's data has been restored.
+    public override void OnPlayerRestored(VRCPlayerApi player)
     {
         if (player == null || !player.isLocal) return;
 
@@ -357,9 +357,9 @@ public class ShipDesignerManager : UdonSharpBehaviour
     private void LoadDesignFromPlayerData()
     {
         if (_gridSize <= 0) return;
-        if (!PlayerData.HasKey(KEY_DESIGN)) return;
+        if (!PlayerData.HasKey(Networking.LocalPlayer, KEY_DESIGN)) return;
 
-        ParseDesign(PlayerData.GetString(KEY_DESIGN));
+        ParseDesign(PlayerData.GetString(Networking.LocalPlayer, KEY_DESIGN));
     }
 
     // ============================================================
@@ -375,7 +375,7 @@ public class ShipDesignerManager : UdonSharpBehaviour
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
     }
 
-    public override void OnOwnershipTransferred()
+    public override void OnOwnershipTransferred(VRCPlayerApi player)
     {
         // OnOwnershipTransferred also fires when we LOSE ownership (e.g. two
         // players apply at once) - only write if the transfer actually landed.
@@ -421,15 +421,10 @@ public class ShipDesignerManager : UdonSharpBehaviour
 
     private VRCPlayerApi GetMasterPlayer()
     {
-        int count = VRCPlayerApi.GetPlayerCount();
-        if (count <= 0) return null;
+        VRCPlayerApi[] players = VRCPlayerApi.GetPlayers();
+        if (players == null) return null;
 
-        VRCPlayerApi[] players = new VRCPlayerApi[80];
-        if (count > players.Length) count = players.Length;
-
-        VRCPlayerApi.GetPlayers(players, count);
-
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < players.Length; i++)
         {
             if (players[i] != null && players[i].isMaster)
                 return players[i];
@@ -522,28 +517,11 @@ public class ShipDesignerManager : UdonSharpBehaviour
     // ============================================================
     private void RefreshStatus()
     {
-        if (statusText == null) return;
-
-        string toolName = _editMode == MODE_ERASE ? "ERASE" : "PLACE";
-        string moduleName = "NONE";
-        if (_activeModule >= 0 && _activeModule < MODULE_NAMES.Length)
-            moduleName = MODULE_NAMES[_activeModule];
-
-        string cellName = _selectedCell >= 0 ? _selectedCell.ToString() : "-";
-        string author = _designAuthor;
-        if (author == "") author = "AUTOPILOT";
-
-        statusText.text = "SHIP DESIGNER " + (_isEditing ? "ONLINE" : "STANDBY") + "\n" +
-            "TOOL: " + toolName + "   MODULE: " + moduleName + "\n" +
-            "CELL: " + cellName + "   BY: " + author;
-
         UpdateGridText();
     }
 
     private void UpdateGridText()
     {
-        if (gridText == null) return;
-
         string map = "";
         for (int row = 0; row < gridRows; row++)
         {
@@ -566,8 +544,6 @@ public class ShipDesignerManager : UdonSharpBehaviour
             map += line;
             if (row < gridRows - 1) map += "\n";
         }
-
-        gridText.text = map;
     }
 
     private void Notify(string message)

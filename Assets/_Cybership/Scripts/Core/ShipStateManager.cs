@@ -126,13 +126,13 @@ public class ShipStateManager : UdonSharpBehaviour
             switch (level)
             {
                 case 0:
-                    SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Master, "OnAlertLevelRemote0");
+                    SendAlertToMaster("OnAlertLevelRemote0");
                     break;
                 case 1:
-                    SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Master, "OnAlertLevelRemote1");
+                    SendAlertToMaster("OnAlertLevelRemote1");
                     break;
                 case 2:
-                    SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Master, "OnAlertLevelRemote2");
+                    SendAlertToMaster("OnAlertLevelRemote2");
                     break;
             }
             return;
@@ -152,6 +152,14 @@ public class ShipStateManager : UdonSharpBehaviour
     public void OnAlertLevelRemote0() { if (Networking.IsMaster) SetAlertLevel(0); }
     public void OnAlertLevelRemote1() { if (Networking.IsMaster) SetAlertLevel(1); }
     public void OnAlertLevelRemote2() { if (Networking.IsMaster) SetAlertLevel(2); }
+
+    // NetworkEventTarget.Master was removed in modern SDK: hand this object to
+    // the master and target the owner instead.
+    private void SendAlertToMaster(string eventName)
+    {
+        Networking.SetOwner(Networking.Master, gameObject);
+        SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, eventName);
+    }
 
     private void ApplyAlertLevel(int level)
     {

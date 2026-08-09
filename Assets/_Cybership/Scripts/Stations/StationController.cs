@@ -129,8 +129,10 @@ public class StationController : UdonSharpBehaviour
         }
     }
 
-    public override void OnOwnershipTransferred()
+    public override void OnOwnershipTransferred(VRCPlayerApi player)
     {
+        base.OnOwnershipTransferred(player);
+
         if (Networking.IsOwner(gameObject) && _pendingOperatorId != -1)
         {
             ClaimStation(_pendingOperatorId);

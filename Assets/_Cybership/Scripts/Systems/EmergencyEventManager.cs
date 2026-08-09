@@ -162,7 +162,8 @@ public class EmergencyEventManager : UdonSharpBehaviour
         }
         else
         {
-            SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Master, "OnCrewRespondedRemote");
+            Networking.SetOwner(Networking.Master, gameObject);
+            SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, "OnCrewRespondedRemote");
         }
 
         if (hudManager != null)

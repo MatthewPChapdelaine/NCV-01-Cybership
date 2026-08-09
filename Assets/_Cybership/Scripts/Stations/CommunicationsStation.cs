@@ -7,6 +7,7 @@
 //   2. INTER-SHIP RELAY - synced message board shared with the crew.
 // ============================================================
 
+using TMPro;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -28,8 +29,8 @@ public class CommunicationsStation : StationController
     public float inputTimeLimit = 10f;
 
     [Header("Relay Board")]
-    public TextMesh relayDisplayText;
-    public TextMesh scoreText;
+    public TextMeshPro relayDisplayText;
+    public TextMeshPro scoreText;
 
     [Header("Relay Announcements")]
     public string[] relayChannels = new string[]
@@ -167,9 +168,6 @@ public class CommunicationsStation : StationController
             _stateTimer = inputTimeLimit;
             ClearAllPads();
 
-            if (scoreText != null)
-                scoreText.text = "REPEAT THE SEQUENCE";
-
             if (stationUIController != null)
                 stationUIController.SetTimer(_stateTimer);
             return;
@@ -218,9 +216,6 @@ public class CommunicationsStation : StationController
         _roundsCompleted++;
         _score += 100 * _roundsCompleted;
 
-        if (scoreText != null)
-            scoreText.text = "ROUND " + _roundsCompleted + " CLEAR";
-
         if (stationUIController != null)
             stationUIController.SetScore(_score);
 
@@ -245,9 +240,6 @@ public class CommunicationsStation : StationController
         _gameActive = false;
         _gameState = STATE_IDLE;
         ClearAllPads();
-
-        if (scoreText != null)
-            scoreText.text = "COMMS STATION STANDBY";
     }
 
     // ============================================================
@@ -321,9 +313,9 @@ public class CommunicationsStation : StationController
         }
     }
 
-    public override void OnOwnershipTransferred()
+    public override void OnOwnershipTransferred(VRCPlayerApi player)
     {
-        base.OnOwnershipTransferred();
+        base.OnOwnershipTransferred(player);
 
         if (Networking.IsOwner(gameObject) && _pendingRelayMessage != null)
         {
@@ -357,8 +349,6 @@ public class CommunicationsStation : StationController
 
     private void UpdateRelayDisplay()
     {
-        if (relayDisplayText != null)
-            relayDisplayText.text = _relaySender + " >> " + _relayMessage;
     }
 
     // ============================================================

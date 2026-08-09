@@ -39,6 +39,24 @@ public class EngineeringStation : StationController
     [UdonSynced, FieldChangeCallback(nameof(OnDesiredOutputChanged))]
     private float _desiredOutput = 50f;
 
+    // UdonSharp FieldChangeCallback references a property (same type as the
+    // synced field), not a method. It fires wherever the synced value lands,
+    // so the host applies it to the reactor here.
+    private float OnDesiredOutputChanged
+    {
+        get => _desiredOutput;
+        set
+        {
+            if (Mathf.Approximately(value, _desiredOutput))
+                return;
+
+            _desiredOutput = value;
+
+            if (Networking.IsMaster && shipState != null)
+                shipState.SetReactorOutput(value);
+        }
+    }
+
     private float _currentPowerSetting = 50f;
     private float _currentCoolantSetting = 50f;
     private float _stabilityScore = 100f;
@@ -125,13 +143,7 @@ public class EngineeringStation : StationController
     // ============================================================
     // REACTOR OUTPUT RELAY
     // ============================================================
-    // The host owns the reactor state, so it applies the synced desired
-    // output here rather than the engineer writing to a host-owned object.
-    private void OnDesiredOutputChanged()
-    {
-        if (Networking.IsMaster && shipState != null)
-            shipState.SetReactorOutput(_desiredOutput);
-    }
+    // Implemented as the FieldChangeCallback property above.
 
     // ============================================================
     // GAUGES & EFFECTS

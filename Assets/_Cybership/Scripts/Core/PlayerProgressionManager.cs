@@ -69,7 +69,7 @@ public class PlayerProgressionManager : UdonSharpBehaviour
         // Wait for OnPlayerRestored before touching PlayerData.
     }
 
-    public void OnPlayerRestored(VRCPlayerApi player)
+    public override void OnPlayerRestored(VRCPlayerApi player)
     {
         if (player != null && player.isLocal)
         {

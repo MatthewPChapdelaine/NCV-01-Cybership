@@ -22,7 +22,6 @@ public class HUDManager : UdonSharpBehaviour
     [Header("Notification")]
     public GameObject notificationPanel;
     public Text notificationText;
-    public Animation notificationAnim;
 
     [Header("References")]
     public PlayerProgressionManager progression;
@@ -153,9 +152,6 @@ public class HUDManager : UdonSharpBehaviour
 
         notificationText.text = message;
         notificationPanel.SetActive(true);
-
-        if (notificationAnim != null)
-            notificationAnim.Play();
 
         SendCustomEventDelayedSeconds("HideNotification", 3f);
     }

@@ -192,7 +192,7 @@ public class TacticalStation : StationController
                 GameObject prefab = targetPrefabs[Random.Range(0, targetPrefabs.Length)];
                 if (prefab == null) { attempts++; continue; }
 
-                GameObject target = VRCInstantiate(prefab);
+                GameObject target = Object.Instantiate(prefab);
                 if (target == null) return;
 
                 target.transform.SetPositionAndRotation(spawnPoints[idx].position, spawnPoints[idx].rotation);
